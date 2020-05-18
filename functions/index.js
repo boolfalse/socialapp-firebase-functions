@@ -1,22 +1,21 @@
 
+const env = require('dotenv').config();
 const functions = require('firebase-functions');
+const serviceAccount = require('./../firebase.json');
 const admin = require('firebase-admin'); // admin SDK for firebase database
+const express = require('express');
+const app = express();
 
-// already knows about the project (it means the database) from .firebaserc file,
-// so we don't need to pass an argument in the initializeApp function
-admin.initializeApp();
-
-// Firebase Firestore Cloud Database URL for local (firebase serve)
-// http://localhost:5000/socialapp-3aeeb/us-central1/createScream
-// Firebase Firestore Cloud Database URL for production (firebase deploy)
-// https://us-central1-socialapp-3aeeb.cloudfunctions.net/helloWorld
-exports.helloWorld = functions.https.onRequest((req, res) => {
-    res.send("Hello World!");
+// generate config file from here
+// Firebase Console > Settings > Project Settings > Service Accounts
+// https://console.firebase.google.com/project/<FIREBASE_PROJECT_ID>/settings/serviceaccounts/adminsdk
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`
 });
 
 // {{FB_FS_DB}}/getScreams
-exports.getScreams = functions.https.onRequest((req, res) => {
-    // https://firebase.google.com/docs/firestore/query-data/get-data#get_all_documents_in_a_collection
+app.get('/screams', (req, res) => {
     admin.firestore()
         .collection('screams')
         .get()
@@ -35,14 +34,12 @@ exports.getScreams = functions.https.onRequest((req, res) => {
         });
 });
 
-// {{FB_FS_DB}}/createScream
-exports.createScream = functions.https.onRequest((req, res) => {
+app.post('/screams', (req, res) => {
     const scream = {
         userHandle: req.body.userHandle,
         body: req.body.body,
         createdAt: admin.firestore.Timestamp.fromDate(new Date())
     };
-    // https://firebase.google.com/docs/firestore/manage-data/add-data#add_a_document
     admin.firestore()
         .collection('screams')
         .add(scream)
@@ -58,3 +55,5 @@ exports.createScream = functions.https.onRequest((req, res) => {
             });
         });
 });
+
+exports.api = functions.https.onRequest(app);
