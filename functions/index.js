@@ -1,7 +1,7 @@
 
 const env = require('dotenv').config();
 const functions = require('firebase-functions');
-const serviceAccount = require('./../firebase.json');
+const serviceAccount = require('./firebase-adminsdk-sa-pk.json');
 const admin = require('firebase-admin'); // admin SDK for firebase database
 const express = require('express');
 const app = express();
@@ -18,11 +18,15 @@ admin.initializeApp({
 app.get('/screams', (req, res) => {
     admin.firestore()
         .collection('screams')
+        .orderBy('createdAt', 'DESC')
         .get()
         .then(snapshotData => {
             let screams = [];
             snapshotData.forEach(doc => {
-                screams.push(doc.data());
+                screams.push({
+                    screamId: doc.id,
+                    ...doc.data() // https://medium.com/@oprearocks/what-do-the-three-dots-mean-in-javascript-bc5749439c9a
+                });
             });
             return res.json(screams);
         })
@@ -38,7 +42,7 @@ app.post('/screams', (req, res) => {
     const scream = {
         userHandle: req.body.userHandle,
         body: req.body.body,
-        createdAt: admin.firestore.Timestamp.fromDate(new Date())
+        createdAt: new Date().toISOString() // admin.firestore.Timestamp.fromDate(new Date())
     };
     admin.firestore()
         .collection('screams')
@@ -56,4 +60,4 @@ app.post('/screams', (req, res) => {
         });
 });
 
-exports.api = functions.https.onRequest(app);
+exports.api = functions.region('asia-east2').https.onRequest(app);
