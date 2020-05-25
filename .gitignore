@@ -398,3 +398,4 @@ $RECYCLE.BIN/
 
 firebase.json
 functions/firebase-adminsdk-pk.json
+functions/firebase-adminsdk-sa-pk.json
