@@ -3,7 +3,6 @@ const env = require('dotenv').config();
 const functions = require('firebase-functions');
 const serviceAccount = require('./firebase-adminsdk-sa-pk.json');
 const admin = require('firebase-admin'); // admin SDK for firebase database
-const db = admin.firestore();
 const app = require('express')();
 
 // generate config file from here
@@ -16,17 +15,21 @@ admin.initializeApp({
 
 const firebase = require('firebase');
 const firebaseConfig = {
-    apiKey: process.FIREBASE_WEB_APP_API_KEY,
-    authDomain: process.FIREBASE_WEB_APP_AUTH_DOMAIN,
-    databaseURL: process.FIREBASE_WEB_APP_DATABASE_URL,
-    projectId: process.FIREBASE_WEB_APP_PROJECT_ID,
-    storageBucket: process.FIREBASE_WEB_APP_STORAGE_BUCKET,
-    messagingSenderId: process.FIREBASE_WEB_APP_MESSAGING_SENDER_ID,
-    appId: process.FIREBASE_WEB_APP_APP_ID,
-    measurementId: process.FIREBASE_WEB_APP_MEASUREMENT_ID,
+    apiKey: process.env.FIREBASE_WEB_APP_API_KEY,
+    authDomain: process.env.FIREBASE_WEB_APP_AUTH_DOMAIN,
+    databaseURL: process.env.FIREBASE_WEB_APP_DATABASE_URL,
+    projectId: process.env.FIREBASE_WEB_APP_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_WEB_APP_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_WEB_APP_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_WEB_APP_APP_ID,
+    measurementId: process.env.FIREBASE_WEB_APP_MEASUREMENT_ID,
 };
 firebase.initializeApp(firebaseConfig);
 // firebase.analytics();
+
+const db = admin.firestore();
+
+
 
 // {{FB_FS_DB}}/getScreams
 app.get('/screams', (req, res) => {
