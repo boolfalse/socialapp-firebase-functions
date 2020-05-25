@@ -2,13 +2,10 @@
 const env = require('dotenv').config();
 const functions = require('firebase-functions');
 const serviceAccount = require('./firebase-adminsdk-sa-pk.json');
-const admin = require('firebase-admin'); // admin SDK for firebase database
+const admin = require('firebase-admin');
 const firebase = require('firebase');
 const app = require('express')();
 
-// generate config file from here
-// Firebase Console > Settings > Project Settings > Service Accounts
-// https://console.firebase.google.com/project/<FIREBASE_PROJECT_ID>/settings/serviceaccounts/adminsdk
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`
@@ -39,7 +36,7 @@ app.get('/screams', (req, res) => {
             snapshotData.forEach(doc => {
                 screams.push({
                     screamId: doc.id,
-                    ...doc.data() // https://medium.com/@oprearocks/what-do-the-three-dots-mean-in-javascript-bc5749439c9a
+                    ...doc.data()
                 });
             });
             return res.json(screams);
@@ -101,7 +98,6 @@ app.post('users/sign-up', (req, res) => {
             }
             else {
                 const userData = {
-                    // userId: 'not_defined_yet',
                     email: user.email,
                     createdAt: new Date().toISOString() // admin.firestore.Timestamp.fromDate(new Date())
                 };
@@ -113,7 +109,6 @@ app.post('users/sign-up', (req, res) => {
                         db.collection('users')
                             .add(userData)
                             .then(doc => {
-                                // console.log(doc);
                                 return res.status(201).json({
                                     message: `User ${userData.userId} signed up successfully.`
                                 });
@@ -161,7 +156,6 @@ app.get('/users', (req, res) => {
 
 app.get('/users/:userId', (req, res) => {
     const userId = req.params.userId;
-    // https://stackoverflow.com/questions/52104687/why-is-firestore-where-query-not-working
     const usersRef = db.collection('users');
     const query = usersRef
         .where('userId', '==', userId)
