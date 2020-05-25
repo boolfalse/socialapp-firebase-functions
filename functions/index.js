@@ -45,9 +45,8 @@ app.get('/screams', (req, res) => {
             return res.json(screams);
         })
         .catch(err => {
-            // console.log(err);
             return res.status(500).json({
-                error: `Something went wrong`
+                error: err
             });
         });
 });
@@ -66,9 +65,8 @@ app.post('/screams', (req, res) => {
             });
         })
         .catch(err => {
-            // console.log(err);
             return res.status(500).json({
-                error: `Something went wrong`
+                error: err
             });
         });
 });
@@ -81,20 +79,61 @@ app.post('/sign-up', (req, res) => {
         handle: req.body.handle,
     };
 
-    // TODO: validate request data
+    // TODO: validate
 
-    firebase
-        .auth()
-        .createUserWithEmailAndPassword(user.email, user.password)
-        .then(data => {
-            return res.status(201).json({
-                message: `User ${data.user.uid} signed up successfully.`
-            });
+    const usersRef = db.collection('users');
+    const query = usersRef
+        .where('email', '==', user.email)
+        .limit(1)
+        .get()
+        .then(querySnapshot => {
+            const querySnapshotDocs = querySnapshot.docs;
+            if (!querySnapshotDocs) {
+                return res.status(500).json({
+                    error: `Something went wrong!`
+                });
+            }
+            else if (querySnapshotDocs.length > 0) {
+                // const user = querySnapshotDocs[0].data();
+                return res.status(409).json({
+                    error: `Email already exists!`
+                });
+            }
+            else {
+                const userData = {
+                    // userId: 'not_defined_yet',
+                    email: user.email,
+                    createdAt: new Date().toISOString() // admin.firestore.Timestamp.fromDate(new Date())
+                };
+                firebase
+                    .auth()
+                    .createUserWithEmailAndPassword(user.email, user.password)
+                    .then(data => {
+                        userData.userId = data.user.uid;
+                        db.collection('users')
+                            .add(userData)
+                            .then(doc => {
+                                // console.log(doc);
+                                return res.status(201).json({
+                                    message: `User ${userData.userId} signed up successfully.`
+                                });
+                            })
+                            .catch(err => {
+                                return res.status(500).json({
+                                    error: err
+                                });
+                            });
+                    })
+                    .catch(err => {
+                        return res.status(500).json({
+                            error: err
+                        });
+                    });
+            }
         })
         .catch(err => {
-            // console.error(err);
             return res.status(500).json({
-                error: err.code
+                error: err
             });
         });
 });
@@ -114,9 +153,8 @@ app.get('/users', (req, res) => {
             return res.json(users);
         })
         .catch(err => {
-            // console.log(err);
             return res.status(500).json({
-                error: `Something went wrong`
+                error: err
             });
         });
 });
@@ -137,9 +175,8 @@ app.get('/users/:userId', (req, res) => {
             return res.json(users);
         })
         .catch(err => {
-            console.log(err);
             return res.status(500).json({
-                error: `Something went wrong`
+                error: err
             });
         });
 });
