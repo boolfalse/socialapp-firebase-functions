@@ -71,7 +71,7 @@ app.post('/screams', (req, res) => {
         });
 });
 
-app.post('/sign-up', (req, res) => {
+app.post('users/sign-up', (req, res) => {
     const user = {
         email: req.body.email,
         password: req.body.password,
