@@ -121,6 +121,29 @@ app.get('/users', (req, res) => {
         });
 });
 
+app.get('/users/:userId', (req, res) => {
+    const userId = req.params.userId;
+    // https://stackoverflow.com/questions/52104687/why-is-firestore-where-query-not-working
+    const usersRef = db.collection('users');
+    const query = usersRef
+        .where('userId', '==', userId)
+        .get()
+        .then(querySnapshot => {
+            let users = [];
+            querySnapshot.docs.map(snapshotDoc => {
+                users.push(snapshotDoc.data());
+            });
+
+            return res.json(users);
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json({
+                error: `Something went wrong`
+            });
+        });
+});
+
 
 
 exports.api = functions.region('asia-east2').https.onRequest(app);
