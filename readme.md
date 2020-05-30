@@ -6,7 +6,7 @@
 
 ### Requirements
 
-- Node.JS and NPM installed (>= version 8)
+- Node.JS (>= version 8) and NPM installed 
 
 
 
