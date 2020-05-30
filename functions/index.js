@@ -5,6 +5,7 @@ const serviceAccount = require('./firebase-adminsdk-sa-pk.json');
 const admin = require('firebase-admin');
 const firebase = require('firebase');
 const app = require('express')();
+const validate = require('./validate');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -68,13 +69,18 @@ app.post('/screams', (req, res) => {
         });
 });
 
-app.post('users/sign-up', (req, res) => {
+app.post('/users/sign-up', (req, res) => {
     const user = {
         email: req.body.email,
         password: req.body.password,
         confirmPassword: req.body.confirmPassword,
         handle: req.body.handle,
     };
+
+    const errors = validate.signUpErrors(user);
+    if (errors) {
+        return res.status(400).json(errors);
+    }
 
     // TODO: validate
 
