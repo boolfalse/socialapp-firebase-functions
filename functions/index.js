@@ -69,20 +69,12 @@ app.post('/screams', (req, res) => {
         });
 });
 
-app.post('/users/sign-up', (req, res) => {
-    const user = {
-        email: req.body.email,
-        password: req.body.password,
-        confirmPassword: req.body.confirmPassword,
-        handle: req.body.handle,
-    };
-
-    const errors = validate.signUpErrors(user);
-    if (errors) {
-        return res.status(400).json(errors);
+app.post('/sign-up', (req, res) => {
+    const validationResult = validate.signUpErrors(req.body);
+    if (validationResult.error) {
+        return res.status(400).json(validationResult.errorMessages);
     }
-
-    // TODO: validate
+    const user = validationResult.filteredData;
 
     const usersRef = db.collection('users');
     const query = usersRef
@@ -178,6 +170,38 @@ app.get('/users/:userId', (req, res) => {
             return res.status(500).json({
                 error: err
             });
+        });
+});
+
+app.post('/login', (req, res) => {
+    const validationResult = validate.loginErrors(req.body);
+    if (validationResult.error) {
+        return res.status(400).json(validationResult.errorMessages);
+    }
+    const user = validationResult.filteredData;
+
+    firebase
+        .auth()
+        .signInWithEmailAndPassword(user.email, user.password)
+        .then(data => {
+            return data.user.getIdToken()
+        })
+        .then(token => {
+            return res.json({ token: token })
+        })
+        .catch(err => {
+            if (
+                err.code === 'auth/wrong-password' ||
+                err.code === 'auth/user-not-found'
+            ) {
+                return res.status(403).json({
+                    general: "Wrong credentials"
+                });
+            } else {
+                return res.status(500).json({
+                    error: err
+                });
+            }
         });
 });
 
