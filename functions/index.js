@@ -70,19 +70,11 @@ app.post('/screams', (req, res) => {
 });
 
 app.post('/users/sign-up', (req, res) => {
-    const user = {
-        email: req.body.email,
-        password: req.body.password,
-        confirmPassword: req.body.confirmPassword,
-        handle: req.body.handle,
-    };
-
-    const errors = validate.signUpErrors(user);
-    if (errors) {
-        return res.status(400).json(errors);
+    const validationResult = validate.signUpErrors(req.body);
+    if (validationResult.error) {
+        return res.status(400).json(validationResult.errorMessages);
     }
-
-    // TODO: validate
+    const user = validationResult.filteredData;
 
     const usersRef = db.collection('users');
     const query = usersRef
