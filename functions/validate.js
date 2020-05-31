@@ -58,7 +58,65 @@ function signUpErrors(data)
     if (!isEmpty(data.handle)) {
         filteredData.handle = data.handle;
     } else {
-        errorMessages.handle = "Handle not valid!";
+        errorMessages.handle = "Handle required!";
+    }
+
+    const errorsCount = Object.keys(errorMessages).length;
+    if (errorsCount === 0) {
+        return {
+            error: false,
+            filteredData: filteredData
+        };
+    } else {
+        return {
+            error: true,
+            errorMessages: errorMessages
+        };
+    }
+}
+
+function loginErrors(data)
+{
+    const filteredData = {};
+    const errorMessages = {};
+
+    // step 1
+    if (isEmpty(data)) {
+        errorMessages.body = "Body not valid!";
+
+        return {
+            error: true,
+            errorMessages: errorMessages
+        };
+    }
+
+    // step 2
+    const requiredProps = [
+        'email',
+        'password',
+    ];
+    for(const prop in requiredProps) {
+        if (!requiredProps.hasOwnProperty(prop)) {
+            errorMessages.body = "Body not valid!";
+
+            return {
+                error: true,
+                errorMessages: errorMessages
+            };
+        }
+    }
+
+    // step 3
+    if (!isEmpty(data.email)) {
+        filteredData.email = data.email;
+    } else {
+        errorMessages.email = "Email required!";
+    }
+
+    if (!isEmpty(data.password)) {
+        filteredData.password = data.password;
+    } else {
+        errorMessages.password = "Password required!";
     }
 
     const errorsCount = Object.keys(errorMessages).length;
@@ -76,5 +134,6 @@ function signUpErrors(data)
 }
 
 module.exports = {
-    signUpErrors: signUpErrors
+    signUpErrors: signUpErrors,
+    loginErrors: loginErrors
 };
