@@ -5,7 +5,6 @@ const firebase = require('firebase');
 const firebaseConfig = require('./../config/firebase');
 firebase.initializeApp(firebaseConfig);
 // firebase.analytics();
-
 const validate = require('./../util/validate');
 
 module.exports = {

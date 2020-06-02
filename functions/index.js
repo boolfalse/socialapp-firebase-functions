@@ -5,28 +5,20 @@ const functions = require('firebase-functions');
 const app = require('express')();
 const firebaseAuth = require('./util/firebaseAuth');
 
-const {
-    getScreams,
-    createScream,
-} = require('./handlers/scream');
-const {
-    signUp,
-    login,
-    getUsers,
-    getUserByUserId,
-} = require('./handlers/user');
+const screamHandler = require('./handlers/scream');
+const userHandler = require('./handlers/user');
 
 
 
 // Scream Routes
-app.get('/screams', getScreams);
-app.post('/screams', firebaseAuth, createScream);
+app.get('/screams', screamHandler.getScreams);
+app.post('/screams', firebaseAuth, screamHandler.createScream);
 
 // User Routes
-app.post('/sign-up', signUp);
-app.post('/login', login);
-app.get('/users', getUsers);
-app.get('/users/:userId', firebaseAuth, getUserByUserId);
+app.post('/sign-up', userHandler.signUp);
+app.post('/login', userHandler.login);
+app.get('/users', userHandler.getUsers);
+app.get('/users/:userId', firebaseAuth, userHandler.getUserByUserId);
 
 
 
