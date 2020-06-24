@@ -1,11 +1,16 @@
 'use strict';
 
-const { db } = require('./../util/admin');
+const { db, admin } = require('./../util/admin');
 const firebase = require('firebase');
 const firebaseConfig = require('./../config/firebase');
 firebase.initializeApp(firebaseConfig);
 // firebase.analytics();
 const validate = require('./../util/validate');
+const generate = require('./../util/generate');
+const Busboy = require('busboy');
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
 
 module.exports = {
     signUp: (req, res) => {
@@ -33,8 +38,10 @@ module.exports = {
                     });
                 }
                 else {
+                    const noImage = 'no-image.png';
                     const userData = {
                         email: user.email,
+                        avatarUrl: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImage}?alt=media`,
                         createdAt: new Date().toISOString() // admin.firestore.Timestamp.fromDate(new Date())
                     };
                     firebase
@@ -136,5 +143,58 @@ module.exports = {
                     error: err
                 });
             });
+    },
+    uploadAvatar: (req, res) => {
+        const busboy = new Busboy({ headers: req.headers });
+
+        let uploadedAvatar = {};
+        let uploadedFilename = '';
+
+        busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+            if (mimetype !== 'image/jpg' &&
+                mimetype !== 'image/jpeg' &&
+                mimetype !== 'image/png' &&
+                mimetype !== 'image/bpm'
+            ) {
+                return res.status(400).json({
+                    error: true,
+                    message: "Wrong avatar type submitted!",
+                });
+            }
+
+            const filenameParts = filename.split('.');
+            const avatarExtension = filenameParts[filenameParts.length - 1];
+            uploadedFilename = generate.avatarName() + '.' + avatarExtension;
+            const filePath = path.join(os.tmpdir(), uploadedFilename);
+            uploadedAvatar = { filePath, mimetype };
+            file.pipe(fs.createWriteStream(filePath));
+
+            file.on('end', () => {
+                console.log('File [' + fieldname + '] Finished');
+            });
+        });
+        busboy.on('finish', function() {
+            admin.storage().bucket().upload(uploadedAvatar.filePath, {
+                resumable: false,
+                metadata: {
+                    metadata: {
+                        contentType: uploadedAvatar.mimetype
+                    }
+                },
+            }).then((data) => {
+                const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
+                return db.doc(`/users/${req.user.handle}`).update({ avatarUrl: avatarUrl });
+            }).then((data) => {
+                return res.json({
+                    message: "Avatar successfully uploaded."
+                });
+            }).catch(err => {
+                return res.status(500).json({
+                    error: err.code
+                });
+            });
+        });
+        busboy.end(req.rawBody);
+        req.pipe(busboy);
     },
 };
