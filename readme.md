@@ -23,7 +23,7 @@
 <br /> .firebaserc (project_id information)
 <br /> firebase.json (empty JSON object in the file)
 <br /> functions/.env (project, web-app environment variables)
-<br /> functions/firebase-adminsdk-sa-pk.json (Firebase Admin SDK configurations. Generate config file from here: Firebase Console > Settings > Project Settings > Service Accounts)
+<br /> functions/config/firebase-adminsdk-sa-pk.json (Firebase Admin SDK configurations. Generate config file from here: Firebase Console > Settings > Project Settings > Service Accounts)
 
 - **Step 3 (run the project)**
 <br /> Run "firebase serve" (for development/local)
