@@ -39,9 +39,10 @@ module.exports = {
                 }
                 else {
                     const noImage = 'no-image.png';
+                    const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImage}?alt=media`;
                     const userData = {
                         email: user.email,
-                        avatarUrl: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImage}?alt=media`,
+                        avatarUrl: avatarUrl,
                         createdAt: new Date().toISOString() // admin.firestore.Timestamp.fromDate(new Date())
                     };
                     firebase
@@ -149,6 +150,7 @@ module.exports = {
 
         let uploadedAvatar = {};
         let uploadedFilename = '';
+        let avatarUrl = '';
 
         busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
             if (mimetype !== 'image/jpg' &&
@@ -182,15 +184,16 @@ module.exports = {
                     }
                 },
             }).then((data) => {
-                const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
-                return db.doc(`/users/${req.user.handle}`).update({ avatarUrl: avatarUrl });
+                avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
+                return firebase.database().ref(`users/${req.user.uid}/avatarUrl`).set(avatarUrl);
             }).then((data) => {
                 return res.json({
-                    message: "Avatar successfully uploaded."
+                    message: "Avatar successfully uploaded.",
+                    avatarUrl: avatarUrl
                 });
             }).catch(err => {
                 return res.status(500).json({
-                    error: err.code
+                    error: err.message
                 });
             });
         });

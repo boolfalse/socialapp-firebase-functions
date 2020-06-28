@@ -24,7 +24,6 @@ module.exports = {
             });
     },
     createScream: (req, res) => {
-        // console.log(req.user);
         const scream = {
             userHandle: req.body.userHandle,
             body: req.body.body,
