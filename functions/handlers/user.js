@@ -172,7 +172,7 @@ module.exports = {
             file.pipe(fs.createWriteStream(filePath));
 
             file.on('end', () => {
-                console.log('File [' + fieldname + '] Finished');
+                // console.log('Finished file : ' + fieldname);
             });
         });
         busboy.on('finish', function() {
@@ -185,7 +185,19 @@ module.exports = {
                 },
             }).then((data) => {
                 avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
-                return firebase.database().ref(`users/${req.user.uid}/avatarUrl`).set(avatarUrl);
+                db.collection('users').where('userId', '==', req.user.uid)
+                    .limit(1)
+                    .get()
+                    .then(function(querySnapshot) {
+                        querySnapshot.forEach(function(userDoc) {
+                            db.collection('users').doc(userDoc.id).update({ avatarUrl: avatarUrl });
+                        });
+                    }).catch(err => {
+                        return res.status(500).json({
+                            error: err.message
+                        });
+                    });
+                return true;
             }).then((data) => {
                 return res.json({
                     message: "Avatar successfully uploaded.",
