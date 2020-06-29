@@ -110,7 +110,6 @@ module.exports = {
         } else {
             errorMessages.email = "Email required!";
         }
-
         if (!isEmpty(data.password)) {
             filteredData.password = data.password;
         } else {
@@ -119,6 +118,59 @@ module.exports = {
 
         const errorsCount = Object.keys(errorMessages).length;
         if (errorsCount === 0) {
+            return {
+                error: false,
+                filteredData: filteredData
+            };
+        } else {
+            return {
+                error: true,
+                errorMessages: errorMessages
+            };
+        }
+    },
+    updateUserDetails: (data) => {
+        // TODO: implement validation
+        const filteredData = {};
+        const errorMessages = {};
+
+        // step 1
+        if (isEmpty(data)) {
+            errorMessages.body = "Body not valid!";
+
+            return {
+                error: true,
+                errorMessages: errorMessages
+            };
+        }
+
+        // step 2
+        const requiredProps = [
+            'address',
+        ];
+        for(const prop in requiredProps) {
+            if (!requiredProps.hasOwnProperty(prop)) {
+                errorMessages.body = "Body not valid!";
+
+                return {
+                    error: true,
+                    errorMessages: errorMessages
+                };
+            }
+        }
+
+        // step 3
+        if (!isEmpty(data.address)) {
+            filteredData.address = data.address;
+        } else {
+            errorMessages.address = "Address required!";
+        }
+
+        const errorsCount = Object.keys(errorMessages).length;
+        if (errorsCount === 0) {
+            filteredData.occupation = data.occupation;
+            filteredData.site = data.site;
+
             return {
                 error: false,
                 filteredData: filteredData

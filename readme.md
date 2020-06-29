@@ -44,6 +44,19 @@
 - [JS three dots](https://medium.com/@oprearocks/what-do-the-three-dots-mean-in-javascript-bc5749439c9a)
 - [NodeJS Firestore where query](https://stackoverflow.com/questions/52104687/why-is-firestore-where-query-not-working)
 
+### Useful Links
+
+- [How to update a single firebase firestore document](https://stackoverflow.com/a/49682615/7574023)
+- [Permission denied in Firebase Realtime Database](https://github.com/firebase/quickstart-js/issues/239)
+- [Firebase Permission Denied](https://stackoverflow.com/a/37404116/7574023)
+- [File upload with filestreams and Firebase cloud functions + cloud storage](https://stackoverflow.com/a/59961640/7574023)
+
+### TODOs
+
+- Replace "handler" to "controller"
+- Replace "then-catch" to "async-await"
+- Change Firebase server Node version (now it's 8)
+
 ### Author & Contributors
 
 **Start: 16.05.2020**

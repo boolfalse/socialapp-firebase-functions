@@ -20,6 +20,7 @@ app.post('/login', userHandler.login);
 app.get('/users', userHandler.getUsers);
 app.get('/users/:userId', firebaseAuth, userHandler.getUserByUserId);
 app.put('/users/avatar', firebaseAuth, userHandler.uploadAvatar);
+app.post('/users/update-details', firebaseAuth, userHandler.updateDetails);
 
 
 

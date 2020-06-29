@@ -185,6 +185,7 @@ module.exports = {
                 },
             }).then((data) => {
                 avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
+                // TODO: improve this block below
                 db.collection('users').where('userId', '==', req.user.uid)
                     .limit(1)
                     .get()
@@ -211,5 +212,36 @@ module.exports = {
         });
         busboy.end(req.rawBody);
         req.pipe(busboy);
+    },
+    updateDetails: (req, res) => {
+        const validationResult = validate.updateUserDetails(req.body);
+        if (validationResult.error) {
+            return res.status(400).json(validationResult.errorMessages);
+        }
+        const userDetails = validationResult.filteredData;
+        // TODO: improve this block below
+        db.collection('users').where('userId', '==', req.user.uid)
+            .limit(1)
+            .get()
+            .then(function(querySnapshot) {
+                querySnapshot.forEach(function(userDoc) {
+                    db.collection('users').doc(userDoc.id).update(userDetails)
+                        .then(() => {
+                            return res.json({
+                                message: "User Details successfully added.",
+                            });
+                        })
+                        .catch(err => {
+                            return res.status(500).json({
+                                error: err.message
+                            });
+                        });
+                });
+            })
+            .catch(err => {
+                return res.status(500).json({
+                    error: err.message
+                });
+            });
     },
 };
