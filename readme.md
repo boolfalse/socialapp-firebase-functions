@@ -23,7 +23,7 @@
 <br /> .firebaserc (project_id information)
 <br /> firebase.json (empty JSON object in the file)
 <br /> functions/.env (project, web-app environment variables)
-<br /> functions/firebase-adminsdk-sa-pk.json (Firebase Admin SDK configurations. Generate config file from here: Firebase Console > Settings > Project Settings > Service Accounts)
+<br /> functions/config/firebase-adminsdk-sa-pk.json (Firebase Admin SDK configurations. Generate config file from here: Firebase Console > Settings > Project Settings > Service Accounts)
 
 - **Step 3 (run the project)**
 <br /> Run "firebase serve" (for development/local)
@@ -43,6 +43,23 @@
 
 - [JS three dots](https://medium.com/@oprearocks/what-do-the-three-dots-mean-in-javascript-bc5749439c9a)
 - [NodeJS Firestore where query](https://stackoverflow.com/questions/52104687/why-is-firestore-where-query-not-working)
+
+### Useful Links
+
+- [How to update a single firebase firestore document](https://stackoverflow.com/a/49682615/7574023)
+- [Permission denied in Firebase Realtime Database](https://github.com/firebase/quickstart-js/issues/239)
+- [Firebase Permission Denied](https://stackoverflow.com/a/37404116/7574023)
+- [File upload with filestreams and Firebase cloud functions + cloud storage](https://stackoverflow.com/a/59961640/7574023)
+- [Mapping Firebase Auth users to Firestore Documents](https://stackoverflow.com/a/46876181/7574023)
+- [Cloud Firestore Security Rules](https://firebase.google.com/docs/firestore/security/get-started)
+- [Firebase Security Rules](https://firebase.google.com/docs/rules/get-started?authuser=0)
+- [HTTP Error: 401 while setting up firebase cloud functions](https://stackoverflow.com/a/52891586/7574023)
+
+### TODOs
+
+- Replace "handler" to "controller"
+- Replace "then-catch" to "async-await"
+- Change Firebase server Node version (now it's 8)
 
 ### Author & Contributors
 
