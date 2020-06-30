@@ -224,4 +224,31 @@ module.exports = {
                 });
             });
     },
+    getAuthUserDetails: (req, res) => {
+        const userData = {
+            // credentials: {},
+            // likes: [],
+        };
+
+        const userId = req.user.uid;
+
+        db.collection('users')
+            .where('userId', '==', userId)
+            .limit(1)
+            .get()
+            .then(querySnapshot => {
+                querySnapshot.docs.map(snapshotDoc => {
+                    userData.credentials = snapshotDoc.data();
+                });
+
+                userData.likes = [];
+
+                return res.status(201).json(userData);
+            })
+            .catch(err => {
+                return res.status(500).json({
+                    error: err.message
+                });
+            });
+    },
 };

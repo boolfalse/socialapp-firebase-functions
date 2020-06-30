@@ -18,9 +18,10 @@ app.post('/screams', firebaseAuth, screamHandler.createScream);
 app.post('/sign-up', userHandler.signUp);
 app.post('/login', userHandler.login);
 app.get('/users', userHandler.getUsers);
-app.get('/users/:userId', firebaseAuth, userHandler.getUserByUserId);
 app.put('/users/avatar', firebaseAuth, userHandler.uploadAvatar);
 app.post('/users/update-details', firebaseAuth, userHandler.updateDetails);
+app.get('/users/get-auth-user-details', firebaseAuth, userHandler.getAuthUserDetails);
+app.get('/users/:userId', firebaseAuth, userHandler.getUserByUserId);
 
 
 
