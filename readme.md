@@ -50,6 +50,10 @@
 - [Permission denied in Firebase Realtime Database](https://github.com/firebase/quickstart-js/issues/239)
 - [Firebase Permission Denied](https://stackoverflow.com/a/37404116/7574023)
 - [File upload with filestreams and Firebase cloud functions + cloud storage](https://stackoverflow.com/a/59961640/7574023)
+- [Mapping Firebase Auth users to Firestore Documents](https://stackoverflow.com/a/46876181/7574023)
+- [Cloud Firestore Security Rules](https://firebase.google.com/docs/firestore/security/get-started)
+- [Firebase Security Rules](https://firebase.google.com/docs/rules/get-started?authuser=0)
+- [HTTP Error: 401 while setting up firebase cloud functions](https://stackoverflow.com/a/52891586/7574023)
 
 ### TODOs
 
