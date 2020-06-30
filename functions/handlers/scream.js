@@ -41,5 +41,31 @@ module.exports = {
                     error: err
                 });
             });
-    }
+    },
+    getScreamData: async (req, res) => {
+        const screamId = req.params.screamId;
+        const scream = await db.doc(`/screams/${screamId}`).get();
+        const screamDocId = scream.id;
+
+        const snapshotData = await db.collection('comments')
+            .orderBy('createdAt', 'DESC')
+            .where('screamId', '==', screamId)
+            .get();
+
+        const comments = [];
+        snapshotData.forEach(doc => {
+            comments.push({
+                screamId: screamDocId,
+                ...doc.data()
+            });
+        });
+
+        return res.json({
+            scream: {
+                screamId: scream.id,
+                ...scream.data()
+            },
+            comments: comments,
+        });
+    },
 };
