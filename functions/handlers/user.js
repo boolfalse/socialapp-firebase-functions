@@ -150,7 +150,6 @@ module.exports = {
 
         let uploadedAvatar = {};
         let uploadedFilename = '';
-        let avatarUrl = '';
 
         busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
             if (mimetype !== 'image/jpg' &&
@@ -184,26 +183,19 @@ module.exports = {
                     }
                 },
             }).then((data) => {
-                avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
-                // TODO: improve this block below
-                db.collection('users').where('userId', '==', req.user.uid)
-                    .limit(1)
-                    .get()
-                    .then(function(querySnapshot) {
-                        querySnapshot.forEach(function(userDoc) {
-                            db.collection('users').doc(userDoc.id).update({ avatarUrl: avatarUrl });
+                const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
+                firebase.firestore().collection('users').doc(req.user.uid).set({ avatarUrl: avatarUrl })
+                    .then(() => {
+                        return res.json({
+                            message: "Avatar successfully uploaded.",
+                            avatarUrl: avatarUrl
                         });
-                    }).catch(err => {
+                    })
+                    .catch(err => {
                         return res.status(500).json({
                             error: err.message
                         });
                     });
-                return true;
-            }).then((data) => {
-                return res.json({
-                    message: "Avatar successfully uploaded.",
-                    avatarUrl: avatarUrl
-                });
             }).catch(err => {
                 return res.status(500).json({
                     error: err.message
@@ -219,23 +211,11 @@ module.exports = {
             return res.status(400).json(validationResult.errorMessages);
         }
         const userDetails = validationResult.filteredData;
-        // TODO: improve this block below
-        db.collection('users').where('userId', '==', req.user.uid)
-            .limit(1)
-            .get()
-            .then(function(querySnapshot) {
-                querySnapshot.forEach(function(userDoc) {
-                    db.collection('users').doc(userDoc.id).update(userDetails)
-                        .then(() => {
-                            return res.json({
-                                message: "User Details successfully added.",
-                            });
-                        })
-                        .catch(err => {
-                            return res.status(500).json({
-                                error: err.message
-                            });
-                        });
+
+        firebase.firestore().collection('users').doc(req.user.uid).set(userDetails)
+            .then(() => {
+                return res.json({
+                    message: "User Details successfully updated.",
                 });
             })
             .catch(err => {
