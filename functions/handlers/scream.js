@@ -68,4 +68,41 @@ module.exports = {
             comments: comments,
         });
     },
+    commentOnScream: (req, res) => {
+        // TODO: validate
+
+        const screamId = req.body.screamId;
+
+        db.doc(`/screams/${screamId}`).get()
+            .then(doc => {
+                if (doc) {
+                    const comment = {
+                        body: req.body.body,
+                        createdAt: new Date(),
+                        screamId: screamId,
+                        userId: req.user.uid,
+                    };
+                    return db.collection('comments')
+                        .add(comment)
+                        .then(() => {
+                            return res.status(201).json({
+                                error: false,
+                                message: "Comment added successfully.",
+                            });
+                        })
+                        .catch(err => {
+                            return res.status(500).json({
+                                error: true,
+                                message: err.message,
+                            });
+                        });
+                } else {
+                    return res.status(404).json({
+                        error: true,
+                        message: "Scream not found!",
+                    });
+                }
+            })
+            .catch();
+    },
 };
