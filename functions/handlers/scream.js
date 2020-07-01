@@ -27,13 +27,19 @@ module.exports = {
         const scream = {
             userHandle: req.body.userHandle,
             body: req.body.body,
-            createdAt: new Date().toISOString() // admin.firestore.Timestamp.fromDate(new Date())
+            createdAt: new Date().toISOString(), // admin.firestore.Timestamp.fromDate(new Date())
+            reactions: {
+                like: 0,
+                dislike: 0,
+            },
         };
         db.collection('screams')
             .add(scream)
             .then(doc => {
+                scream.screamId = doc.id;
                 return res.json({
-                    message: `Document ${doc.id} created successfully!`
+                    message: "Scream created successfully!",
+                    scream: scream
                 });
             })
             .catch(err => {
@@ -45,6 +51,13 @@ module.exports = {
     getScreamData: async (req, res) => {
         const screamId = req.params.screamId;
         const scream = await db.doc(`/screams/${screamId}`).get();
+        if (!scream) {
+            return res.status(404).json({
+                error: true,
+                message: "Scream not found",
+            });
+        }
+
         const screamDocId = scream.id;
 
         const snapshotData = await db.collection('comments')
@@ -103,6 +116,11 @@ module.exports = {
                     });
                 }
             })
-            .catch();
+            .catch(err => {
+                return res.status(500).json({
+                    error: true,
+                    message: err.message,
+                });
+            });
     },
 };

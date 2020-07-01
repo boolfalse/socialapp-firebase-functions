@@ -171,7 +171,7 @@ module.exports = {
             file.pipe(fs.createWriteStream(filePath));
 
             file.on('end', () => {
-                // console.log('Finished file : ' + fieldname);
+                // console ('Finished file : ' + fieldname);
             });
         });
         busboy.on('finish', function() {
@@ -184,7 +184,8 @@ module.exports = {
                 },
             }).then((data) => {
                 const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
-                firebase.firestore().collection('users').doc(req.user.uid).set({ avatarUrl: avatarUrl })
+                // TODO: check this endpoint-action (after this 'set'->'update' replacement below)
+                firebase.firestore().collection('users').doc(req.user.uid).update({ avatarUrl: avatarUrl })
                     .then(() => {
                         return res.json({
                             message: "Avatar successfully uploaded.",
@@ -212,6 +213,7 @@ module.exports = {
         }
         const userDetails = validationResult.filteredData;
 
+        // TODO: check this endpoint-action with 'set'->'update' replacement
         firebase.firestore().collection('users').doc(req.user.uid).set(userDetails)
             .then(() => {
                 return res.json({
