@@ -171,7 +171,7 @@ module.exports = {
             file.pipe(fs.createWriteStream(filePath));
 
             file.on('end', () => {
-                // console.log('Finished file : ' + fieldname);
+                // console ('Finished file : ' + fieldname);
             });
         });
         busboy.on('finish', function() {
@@ -182,20 +182,23 @@ module.exports = {
                         contentType: uploadedAvatar.mimetype
                     }
                 },
-            }).then((data) => {
+            }).then(async (data) => {
                 const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
-                firebase.firestore().collection('users').doc(req.user.uid).set({ avatarUrl: avatarUrl })
-                    .then(() => {
-                        return res.json({
-                            message: "Avatar successfully uploaded.",
-                            avatarUrl: avatarUrl
-                        });
-                    })
-                    .catch(err => {
-                        return res.status(500).json({
-                            error: err.message
-                        });
+                const userDocsSnapshot = (await db.collection('users').where('userId', '==', req.user.uid).get()).docs;
+                if (userDocsSnapshot.length > 0) {
+                    const userDocId = userDocsSnapshot[0].id;
+                    await db.doc(`/users/${userDocId}`).update({ avatarUrl: avatarUrl });
+
+                    return res.json({
+                        message: "Avatar successfully uploaded.",
+                        avatarUrl: avatarUrl
                     });
+                } else {
+                    return res.status(500).json({
+                        error: true,
+                        message: "Something went wrong!"
+                    });
+                }
             }).catch(err => {
                 return res.status(500).json({
                     error: err.message
@@ -205,18 +208,48 @@ module.exports = {
         busboy.end(req.rawBody);
         req.pipe(busboy);
     },
-    updateDetails: (req, res) => {
+    updateDetails: async (req, res) => {
         const validationResult = validate.updateUserDetails(req.body);
         if (validationResult.error) {
             return res.status(400).json(validationResult.errorMessages);
         }
         const userDetails = validationResult.filteredData;
 
-        firebase.firestore().collection('users').doc(req.user.uid).set(userDetails)
-            .then(() => {
-                return res.json({
-                    message: "User Details successfully updated.",
+        const userDocsSnapshot = (await db.collection('users').where('userId', '==', req.user.uid).get()).docs;
+        if (userDocsSnapshot.length > 0) {
+            const userDocId = userDocsSnapshot[0].id;
+            await db.doc(`/users/${userDocId}`).update(userDetails);
+
+            return res.json({
+                message: "User Details successfully updated.",
+            });
+        } else {
+            return res.status(500).json({
+                error: true,
+                message: "Something went wrong!"
+            });
+        }
+    },
+    getAuthUserDetails: (req, res) => {
+        const userData = {
+            // credentials: {},
+            // likes: [],
+        };
+
+        const userId = req.user.uid;
+
+        db.collection('users')
+            .where('userId', '==', userId)
+            .limit(1)
+            .get()
+            .then(querySnapshot => {
+                querySnapshot.docs.map(snapshotDoc => {
+                    userData.credentials = snapshotDoc.data();
                 });
+
+                userData.likes = [];
+
+                return res.status(201).json(userData);
             })
             .catch(err => {
                 return res.status(500).json({

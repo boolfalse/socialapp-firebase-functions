@@ -57,9 +57,10 @@
 
 ### TODOs
 
-- Replace "handler" to "controller"
-- Replace "then-catch" to "async-await"
-- Change Firebase server Node version (now it's 8)
+- Replace "handler" to "controller".
+- Replace "then-catch" to "async-await".
+- Change Firebase server Node version (now it's 8).
+- Make all responses with defined standard.
 
 ### Author & Contributors
 

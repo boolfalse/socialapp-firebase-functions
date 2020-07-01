@@ -130,7 +130,7 @@ module.exports = {
         }
     },
     updateUserDetails: (data) => {
-        // TODO: implement validation
+        // TODO: validate
         const filteredData = {};
         const errorMessages = {};
 
