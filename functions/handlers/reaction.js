@@ -44,9 +44,9 @@ module.exports = {
         }
 
         const screamId = req.body.screamId;
-        const screamDoc = await db.doc(`/screams/${screamId}`).get(); // TODO: check case, when if not exists
+        const screamDoc = await db.doc(`/screams/${screamId}`).get();
 
-        if (screamDoc) {
+        if (screamDoc.data()) {
             let updatedReactions;
             const screamDocReactions = screamDoc.data().reactions;
 
