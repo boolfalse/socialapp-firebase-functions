@@ -15,6 +15,7 @@ const userHandler = require('./handlers/user');
 app.get('/screams', screamHandler.getScreams);
 app.post('/screams', firebaseAuth, screamHandler.createScream);
 app.post('/screams/comment', firebaseAuth, screamHandler.commentOnScream);
+app.delete('/screams/:screamId', firebaseAuth, screamHandler.deleteScream);
 app.get('/screams/:screamId', screamHandler.getScreamData);
 
 // Reactions

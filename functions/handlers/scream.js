@@ -123,4 +123,36 @@ module.exports = {
                 });
             });
     },
+    deleteScream: (req, res) => {
+        const screamId = req.params.screamId;
+        const screamDoc = db.doc(`/screams/${screamId}`);
+        screamDoc.get().then(doc => {
+                if (doc.data()) {
+                    screamDoc.delete()
+                        .then(() => {
+                            return res.status(200).json({
+                                error: false,
+                                message: "Scream successfully deleted.",
+                            });
+                        })
+                        .catch(err => {
+                            return res.status(500).json({
+                                error: true,
+                                message: err.message,
+                            });
+                        });
+                } else {
+                    return res.status(404).json({
+                        error: true,
+                        message: "Scream not found!",
+                    });
+                }
+            })
+            .catch(err => {
+                return res.status(500).json({
+                    error: true,
+                    message: err.message,
+                });
+            });
+    },
 };
