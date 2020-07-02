@@ -4,6 +4,7 @@ require('dotenv').config();
 const functions = require('firebase-functions');
 const app = require('express')();
 const firebaseAuth = require('./util/firebaseAuth');
+const notifications = require('./util/notifications');
 
 const screamHandler = require('./handlers/scream');
 const reactionHandler = require('./handlers/reaction');
@@ -33,4 +34,9 @@ app.get('/users/:userId', firebaseAuth, userHandler.getUserByUserId);
 
 
 
-exports.api = functions.region('asia-east2').https.onRequest(app);
+module.exports.api = functions.region('asia-east2').https.onRequest(app);
+
+module.exports.createNotificationForReaction = notifications.createNotificationForReaction;
+module.exports.deleteNotificationForReaction = notifications.deleteNotificationForReaction;
+module.exports.createNotificationForComment = notifications.createNotificationForComment;
+module.exports.deleteNotificationForComment = notifications.deleteNotificationForComment;
