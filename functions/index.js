@@ -14,7 +14,6 @@ const notificationHandler = require('./handlers/notification');
 
 
 // Scream Routes
-app.get('/screams', screamHandler.getScreams);
 app.post('/screams', firebaseAuth, screamHandler.createScream);
 app.post('/screams/comment', firebaseAuth, screamHandler.commentOnScream);
 app.delete('/screams/:screamId', firebaseAuth, screamHandler.deleteScream);
@@ -30,12 +29,10 @@ app.post('/notifications/read', firebaseAuth, notificationHandler.markAsRead);
 // User Routes
 app.post('/sign-up', userHandler.signUp);
 app.post('/login', userHandler.login);
-app.get('/users', userHandler.getUsers);
 app.put('/users/avatar', firebaseAuth, userHandler.uploadAvatar);
 app.post('/users/update-details', firebaseAuth, userHandler.updateDetails);
 app.get('/users/get-auth-user-details', firebaseAuth, userHandler.getAuthUserDetails);
 app.get('/users/get-user-details/:userId', userHandler.getUserDetails);
-app.get('/users/:userId', firebaseAuth, userHandler.getUserByUserId);
 
 
 
