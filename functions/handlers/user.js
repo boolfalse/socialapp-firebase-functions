@@ -49,12 +49,12 @@ module.exports = {
                         .auth()
                         .createUserWithEmailAndPassword(user.email, user.password)
                         .then(data => {
-                            userData.userId = data.user.uid;
                             db.collection('users')
                                 .add(userData)
                                 .then(doc => {
                                     return res.status(201).json({
-                                        message: `User ${userData.userId} signed up successfully.`
+                                        error: false,
+                                        message: "User signed up successfully."
                                     });
                                 })
                                 .catch(err => {
@@ -107,44 +107,6 @@ module.exports = {
                 }
             });
     },
-    getUsers: (req, res) => {
-        db.collection('users')
-            .orderBy('createdAt', 'DESC')
-            .get()
-            .then(snapshotData => {
-                let users = [];
-                snapshotData.forEach(doc => {
-                    users.push({
-                        userId: doc.id,
-                        ...doc.data()
-                    });
-                });
-                return res.json(users);
-            })
-            .catch(err => {
-                return res.status(500).json({
-                    error: err
-                });
-            });
-    },
-    getUserByUserId: (req, res) => {
-        const userId = req.params.userId;
-        const usersRef = db.collection('users');
-        usersRef.where('userId', '==', userId)
-            .get()
-            .then(querySnapshot => {
-                let users = [];
-                querySnapshot.docs.map(snapshotDoc => {
-                    users.push(snapshotDoc.data());
-                });
-                return res.json(users);
-            })
-            .catch(err => {
-                return res.status(500).json({
-                    error: err
-                });
-            });
-    },
     uploadAvatar: (req, res) => {
         const busboy = new Busboy({ headers: req.headers });
 
@@ -184,7 +146,7 @@ module.exports = {
                 },
             }).then(async (data) => {
                 const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
-                const userDocsSnapshot = (await db.collection('users').where('userId', '==', req.user.uid).get()).docs;
+                const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
                 if (userDocsSnapshot.length > 0) {
                     const userDocId = userDocsSnapshot[0].id;
                     await db.doc(`/users/${userDocId}`).update({ avatarUrl: avatarUrl });
@@ -215,7 +177,7 @@ module.exports = {
         }
         const userDetails = validationResult.filteredData;
 
-        const userDocsSnapshot = (await db.collection('users').where('userId', '==', req.user.uid).get()).docs;
+        const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
         if (userDocsSnapshot.length > 0) {
             const userDocId = userDocsSnapshot[0].id;
             await db.doc(`/users/${userDocId}`).update(userDetails);
@@ -236,10 +198,8 @@ module.exports = {
             // likes: [],
         };
 
-        const userId = req.user.uid;
-
         db.collection('users')
-            .where('userId', '==', userId)
+            .where('email', '==', req.user.email)
             .limit(1)
             .get()
             .then(querySnapshot => {

@@ -57,6 +57,7 @@
 
 ### TODOs
 
+- Delete "userId" from "users", add to "screams", "comments".
 - Replace "handler" to "controller".
 - Replace "then-catch" to "async-await".
 - Change Firebase server Node version (now it's 8).
