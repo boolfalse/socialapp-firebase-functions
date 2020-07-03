@@ -73,47 +73,40 @@ module.exports = {
             comments: comments,
         });
     },
-    commentOnScream: (req, res) => {
+    commentOnScream: async (req, res) => {
         // TODO: validate
 
         const screamId = req.body.screamId;
 
-        db.doc(`/screams/${screamId}`).get()
-            .then(doc => {
-                if (doc.data()) {
-                    const comment = {
-                        body: req.body.body,
-                        createdAt: new Date(),
-                        screamId: screamId,
-                        userId: req.user.uid,
-                    };
-                    return db.collection('comments')
-                        .add(comment)
-                        .then(() => {
-                            return res.status(201).json({
-                                error: false,
-                                message: "Comment added successfully.",
-                            });
-                        })
-                        .catch(err => {
-                            return res.status(500).json({
-                                error: true,
-                                message: err.message,
-                            });
-                        });
-                } else {
-                    return res.status(404).json({
-                        error: true,
-                        message: "Scream not found!",
-                    });
-                }
-            })
-            .catch(err => {
-                return res.status(500).json({
-                    error: true,
-                    message: err.message,
-                });
+        const screamDoc = await db.doc(`/screams/${screamId}`).get();
+        if (!screamDoc.data()) {
+            return res.status(404).json({
+                error: true,
+                message: "Scream not found!",
             });
+        }
+
+        const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
+        if (userDocsSnapshot.length === 0) {
+            return res.status(404).json({
+                error: true,
+                message: "Something wnt wrong!",
+            });
+        }
+
+        const userDocId = userDocsSnapshot[0].id;
+        const comment = {
+            body: req.body.body,
+            createdAt: new Date(),
+            screamId: screamId,
+            userId: userDocId,
+        };
+        await db.collection('comments').add(comment);
+
+        return res.status(201).json({
+            error: false,
+            message: "Comment added successfully.",
+        });
     },
     deleteScream: (req, res) => {
         const screamId = req.params.screamId;
