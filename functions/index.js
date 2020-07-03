@@ -12,7 +12,6 @@ const userHandler = require('./handlers/user');
 
 
 // Scream Routes
-app.get('/screams', screamHandler.getScreams);
 app.post('/screams', firebaseAuth, screamHandler.createScream);
 app.post('/screams/comment', firebaseAuth, screamHandler.commentOnScream);
 app.delete('/screams/:screamId', firebaseAuth, screamHandler.deleteScream);

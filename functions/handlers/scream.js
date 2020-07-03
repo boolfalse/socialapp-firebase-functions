@@ -3,50 +3,42 @@
 const { db } = require('./../util/admin');
 
 module.exports = {
-    getScreams: (req, res) => {
-        db.collection('screams')
-            .orderBy('createdAt', 'DESC')
-            .get()
-            .then(snapshotData => {
-                let screams = [];
-                snapshotData.forEach(doc => {
-                    screams.push({
-                        screamId: doc.id,
-                        ...doc.data()
-                    });
-                });
-                return res.json(screams);
-            })
-            .catch(err => {
-                return res.status(500).json({
-                    error: err
-                });
-            });
-    },
-    createScream: (req, res) => {
-        const scream = {
-            userHandle: req.body.userHandle,
-            body: req.body.body,
-            createdAt: new Date().toISOString(), // admin.firestore.Timestamp.fromDate(new Date())
-            reactions: {
-                like: 0,
-                dislike: 0,
-            },
-        };
-        db.collection('screams')
-            .add(scream)
-            .then(doc => {
-                scream.screamId = doc.id;
+    createScream: async (req, res) => {
+        // TODO: validate
+
+        const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
+        if (userDocsSnapshot.length > 0) {
+            const userDocId = userDocsSnapshot[0].id;
+            const scream = {
+                userId: userDocId,
+                userHandle: req.body.userHandle,
+                body: req.body.body,
+                createdAt: new Date().toISOString(), // admin.firestore.Timestamp.fromDate(new Date())
+                reactions: {
+                    like: 0,
+                    dislike: 0,
+                },
+            };
+
+            const createdScream = await db.collection('screams').add(scream);
+            if (createdScream) {
                 return res.json({
+                    error: false,
                     message: "Scream created successfully!",
-                    scream: scream
                 });
-            })
-            .catch(err => {
+            } else {
                 return res.status(500).json({
-                    error: err
+                    error: true,
+                    message: "Something went wrong!"
                 });
+            }
+        }
+        else {
+            return res.status(500).json({
+                error: true,
+                message: "Something went wrong!"
             });
+        }
     },
     getScreamData: async (req, res) => {
         const screamId = req.params.screamId;
@@ -88,7 +80,7 @@ module.exports = {
 
         db.doc(`/screams/${screamId}`).get()
             .then(doc => {
-                if (doc) {
+                if (doc.data()) {
                     const comment = {
                         body: req.body.body,
                         createdAt: new Date(),
