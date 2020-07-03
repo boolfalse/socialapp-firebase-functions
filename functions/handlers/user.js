@@ -230,7 +230,7 @@ module.exports = {
             });
         }
     },
-    getAuthUserDetails: (req, res) => {
+    getAuthUserDetails: async (req, res) => {
         const userData = {
             // credentials: {},
             // likes: [],
@@ -238,23 +238,68 @@ module.exports = {
 
         const userId = req.user.uid;
 
-        db.collection('users')
+        const usersSnapshot = await db.collection('users')
             .where('userId', '==', userId)
             .limit(1)
-            .get()
-            .then(querySnapshot => {
-                querySnapshot.docs.map(snapshotDoc => {
-                    userData.credentials = snapshotDoc.data();
-                });
+            .get();
+        const userDocs = usersSnapshot.docs;
+        userData.credentials = userDocs[0].data();
 
-                userData.likes = [];
+        const notificationsSnapshot = await db.collection('notifications')
+            .where('recipientId', '==', userId)
+            .orderBy('createdAt', 'DESC')
+            .limit(10)
+            .get();
+        const notifications = [];
+        notificationsSnapshot.forEach(notificationDoc => {
+            notifications.push({
+                notificationId: notificationDoc.id,
+                recipientId: notificationDoc.data().recipientId,
+                senderId: notificationDoc.data().senderId,
+                createdAt: notificationDoc.data().createdAt,
+                screamId: notificationDoc.data().screamId,
+                type: notificationDoc.data().type,
+                read: notificationDoc.data().read,
+                value: notificationDoc.data().value,
+            });
+        });
+        userData.notifications = notifications;
 
-                return res.status(201).json(userData);
-            })
-            .catch(err => {
-                return res.status(500).json({
-                    error: err.message
+        userData.likes = [];
+
+        return res.status(201).json(userData);
+    },
+    getUserDetails: async (req, res) => {
+        // TODO: validate
+
+        const userId = req.params.userId;
+
+        const userDoc = await db.doc(`/users/${userId}`).get();
+
+        if (userDoc.data()) {
+            const userScreamsDocs = await db.collection('screams')
+                .where('userId', '==', userDoc.id)
+                .orderBy('createdAt', 'DESC')
+                .limit(10)
+                .get();
+
+            const userScreams = [];
+            userScreamsDocs.docs.foreach(userScreamDoc => {
+                userScreams.push({
+                    screamId: userScreamDoc.id,
+                    ...userScreamDoc.data(),
                 });
             });
+
+            return res.status(200).json({
+                user: userDoc.data(),
+                screams: userScreams,
+            });
+        } else {
+            return res.status(404).json({
+                error: true,
+                message: "User not found!",
+            });
+        }
     },
 };

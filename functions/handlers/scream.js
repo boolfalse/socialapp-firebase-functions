@@ -24,6 +24,8 @@ module.exports = {
             });
     },
     createScream: (req, res) => {
+        // TODO: validate
+
         const scream = {
             userHandle: req.body.userHandle,
             body: req.body.body,

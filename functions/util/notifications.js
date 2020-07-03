@@ -19,7 +19,7 @@ module.exports = {
                 senderId: eventSnapshot.data().userId,
                 // recipientId: screamDoc.data().userId,
                 screamId: screamDoc.id,
-                reaction: eventSnapshot.data().reaction, // eg. 1 (like) OR 2 (dislike)
+                value: eventSnapshot.data().reaction, // eg. 1 (like) OR 2 (dislike)
             };
             await db.doc(`/notifications/${eventSnapshot.id}`).set(notificationData);
 
@@ -49,7 +49,7 @@ module.exports = {
                 senderId: eventSnapshot.data().userId,
                 // recipientId: screamDoc.data().userId,
                 screamId: screamDoc.id,
-                body: eventSnapshot.data().body, // eg. Cool Comment!
+                value: eventSnapshot.data().body, // eg. Cool Comment!
             };
             await db.doc(`/notifications/${eventSnapshot.id}`).set(notificationData);
 
