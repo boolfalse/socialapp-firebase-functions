@@ -22,6 +22,7 @@ module.exports = {
 
             const createdScream = await db.collection('screams').add(scream);
             if (createdScream) {
+
                 return res.json({
                     error: false,
                     message: "Scream created successfully!",

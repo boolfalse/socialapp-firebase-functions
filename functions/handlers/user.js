@@ -192,29 +192,80 @@ module.exports = {
             });
         }
     },
-    getAuthUserDetails: (req, res) => {
+    getAuthUserDetails: async (req, res) => {
         const userData = {
             // credentials: {},
-            // likes: [],
+            // reactions: [],
         };
 
-        db.collection('users')
-            .where('email', '==', req.user.email)
-            .limit(1)
-            .get()
-            .then(querySnapshot => {
-                querySnapshot.docs.map(snapshotDoc => {
-                    userData.credentials = snapshotDoc.data();
-                });
+        const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
+        if (userDocsSnapshot.length === 0) {
+            return res.status(500).json({
+                error: true,
+                message: "Something went wrong!"
+            });
+        }
+        const userDocId = userDocsSnapshot[0].id;
+        userData.credentials = {
+            // userId: userDocId,
+            ...userDocsSnapshot[0].data()
+        };
 
-                userData.likes = [];
+        const notificationsSnapshot = await db.collection('notifications')
+            .where('recipientId', '==', userDocId)
+            .orderBy('createdAt', 'DESC')
+            .limit(10)
+            .get();
+        const notifications = [];
+        notificationsSnapshot.forEach(notificationDoc => {
+            notifications.push({
+                notificationId: notificationDoc.id,
+                recipientId: notificationDoc.data().recipientId,
+                senderId: notificationDoc.data().senderId,
+                createdAt: notificationDoc.data().createdAt,
+                screamId: notificationDoc.data().screamId,
+                type: notificationDoc.data().type,
+                read: notificationDoc.data().read,
+                value: notificationDoc.data().value,
+            });
+        });
+        userData.notifications = notifications;
 
-                return res.status(201).json(userData);
-            })
-            .catch(err => {
-                return res.status(500).json({
-                    error: err.message
+        userData.reactions = [];
+
+        return res.status(201).json(userData);
+    },
+    getUserDetails: async (req, res) => {
+        // TODO: validate
+
+        const userId = req.params.userId;
+
+        const userDoc = await db.doc(`/users/${userId}`).get();
+
+        if (userDoc.data()) {
+            const userScreamsDocs = await db.collection('screams')
+                .where('userId', '==', userDoc.id)
+                .orderBy('createdAt', 'DESC')
+                .limit(10)
+                .get();
+
+            const userScreams = [];
+            userScreamsDocs.docs.foreach(userScreamDoc => {
+                userScreams.push({
+                    screamId: userScreamDoc.id,
+                    ...userScreamDoc.data(),
                 });
             });
+
+            return res.status(200).json({
+                user: userDoc.data(),
+                screams: userScreams,
+            });
+        } else {
+            return res.status(404).json({
+                error: true,
+                message: "User not found!",
+            });
+        }
     },
 };
