@@ -127,20 +127,20 @@ module.exports = {
             }).then(async (data) => {
                 const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
                 const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
-                if (userDocsSnapshot.length > 0) {
-                    const userDocId = userDocsSnapshot[0].id;
-                    await db.doc(`/users/${userDocId}`).update({ avatarUrl: avatarUrl });
-
-                    return res.json({
-                        message: "Avatar successfully uploaded.",
-                        avatarUrl: avatarUrl
-                    });
-                } else {
+                if (userDocsSnapshot.length === 0) {
                     return res.status(500).json({
                         error: true,
                         message: "Something went wrong!"
                     });
                 }
+
+                const userDocId = userDocsSnapshot[0].id;
+                await db.doc(`/users/${userDocId}`).update({ avatarUrl: avatarUrl });
+
+                return res.json({
+                    message: "Avatar successfully uploaded.",
+                    avatarUrl: avatarUrl
+                });
             }).catch(err => {
                 return res.status(500).json({
                     error: err.message
@@ -158,21 +158,22 @@ module.exports = {
         const userDetails = validationResult.filteredData;
 
         const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
-        if (userDocsSnapshot.length > 0) {
-            const userDocId = userDocsSnapshot[0].id;
-            await db.doc(`/users/${userDocId}`).update(userDetails);
-
-            return res.json({
-                message: "User Details successfully updated.",
-            });
-        } else {
+        if (userDocsSnapshot.length === 0) {
             return res.status(500).json({
                 error: true,
                 message: "Something went wrong!"
             });
         }
+
+        const userDocId = userDocsSnapshot[0].id;
+        await db.doc(`/users/${userDocId}`).update(userDetails);
+
+        return res.json({
+            message: "User Details successfully updated.",
+        });
     },
     getAuthUserDetails: async (req, res) => {
+        // TODO: implement response as need
         const userData = {
             // credentials: {},
             // reactions: [],
@@ -187,7 +188,7 @@ module.exports = {
         }
         const userDocId = userDocsSnapshot[0].id;
         userData.credentials = {
-            // userId: userDocId,
+            userId: userDocId,
             ...userDocsSnapshot[0].data()
         };
 

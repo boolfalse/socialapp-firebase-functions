@@ -17,7 +17,7 @@ module.exports = {
                 createdAt: new Date(),
                 read: false,
                 senderId: eventSnapshot.data().userId,
-                // recipientId: screamDoc.data().userId,
+                recipientId: screamDoc.data().userId,
                 screamId: screamDoc.id,
                 value: eventSnapshot.data().reaction, // eg. 1 (like) OR 2 (dislike)
             };
@@ -47,7 +47,7 @@ module.exports = {
                 createdAt: new Date(),
                 read: false,
                 senderId: eventSnapshot.data().userId,
-                // recipientId: screamDoc.data().userId,
+                recipientId: screamDoc.data().userId,
                 screamId: screamDoc.id,
                 value: eventSnapshot.data().body, // eg. Cool Comment!
             };

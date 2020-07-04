@@ -7,39 +7,30 @@ module.exports = {
         // TODO: validate
 
         const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
-        if (userDocsSnapshot.length > 0) {
-            const userDocId = userDocsSnapshot[0].id;
-            const scream = {
-                userId: userDocId,
-                userHandle: req.body.userHandle,
-                body: req.body.body,
-                createdAt: new Date().toISOString(), // admin.firestore.Timestamp.fromDate(new Date())
-                reactions: {
-                    like: 0,
-                    dislike: 0,
-                },
-            };
-
-            const createdScream = await db.collection('screams').add(scream);
-            if (createdScream) {
-
-                return res.json({
-                    error: false,
-                    message: "Scream created successfully!",
-                });
-            } else {
-                return res.status(500).json({
-                    error: true,
-                    message: "Something went wrong!"
-                });
-            }
-        }
-        else {
+        if (userDocsSnapshot.length === 0) {
             return res.status(500).json({
                 error: true,
                 message: "Something went wrong!"
             });
         }
+
+        const userDocId = userDocsSnapshot[0].id;
+        const scream = {
+            userId: userDocId,
+            userHandle: req.body.userHandle,
+            body: req.body.body,
+            createdAt: new Date().toISOString(), // admin.firestore.Timestamp.fromDate(new Date())
+            reactions: {
+                like: 0,
+                dislike: 0,
+            },
+        };
+
+        await db.collection('screams').add(scream);
+        return res.json({
+            error: false,
+            message: "Scream created successfully!",
+        });
     },
     getScreamData: async (req, res) => {
         const screamId = req.params.screamId;
