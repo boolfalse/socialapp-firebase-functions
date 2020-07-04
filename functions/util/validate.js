@@ -23,7 +23,7 @@ module.exports = {
             'email',
             'password',
             'confirmPassword',
-            'handle',
+            'username',
         ];
         for(const prop in requiredProps) {
             if (!requiredProps.hasOwnProperty(prop)) {
@@ -55,10 +55,10 @@ module.exports = {
             errorMessages.password = "Wrong password confirmation";
         }
 
-        if (!isEmpty(data.handle)) {
-            filteredData.handle = data.handle;
+        if (!isEmpty(data.username)) {
+            filteredData.username = data.username;
         } else {
-            errorMessages.handle = "Handle required!";
+            errorMessages.username = "Username required!";
         }
 
         const errorsCount = Object.keys(errorMessages).length;

@@ -13,68 +13,48 @@ const os = require('os');
 const fs = require('fs');
 
 module.exports = {
-    signUp: (req, res) => {
+    signUp: async (req, res) => {
         const validationResult = validate.signUpErrors(req.body);
         if (validationResult.error) {
             return res.status(400).json(validationResult.errorMessages);
         }
         const user = validationResult.filteredData;
 
-        db.collection('users')
-            .where('email', '==', user.email)
-            .limit(1)
-            .get()
-            .then(querySnapshot => {
-                const querySnapshotDocs = querySnapshot.docs;
-                if (!querySnapshotDocs) {
-                    return res.status(500).json({
-                        error: `Something went wrong!`
-                    });
-                }
-                else if (querySnapshotDocs.length > 0) {
-                    // const user = querySnapshotDocs[0].data();
-                    return res.status(409).json({
-                        error: `Email already exists!`
-                    });
-                }
-                else {
-                    const noImage = 'no-image.png';
-                    const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImage}?alt=media`;
-                    const userData = {
-                        email: user.email,
-                        avatarUrl: avatarUrl,
-                        createdAt: new Date().toISOString() // admin.firestore.Timestamp.fromDate(new Date())
-                    };
-                    firebase
-                        .auth()
-                        .createUserWithEmailAndPassword(user.email, user.password)
-                        .then(data => {
-                            db.collection('users')
-                                .add(userData)
-                                .then(doc => {
-                                    return res.status(201).json({
-                                        error: false,
-                                        message: "User signed up successfully."
-                                    });
-                                })
-                                .catch(err => {
-                                    return res.status(500).json({
-                                        error: err
-                                    });
-                                });
-                        })
-                        .catch(err => {
-                            return res.status(500).json({
-                                error: err
-                            });
-                        });
-                }
-            })
-            .catch(err => {
-                return res.status(500).json({
-                    error: err
-                });
+        const querySnapshotByEmail = await db.collection('users').where('email', '==', user.email).limit(1).get();
+        const querySnapshotDocsByEmail = querySnapshotByEmail.docs;
+        if (querySnapshotDocsByEmail.length > 0) {
+            // const user = querySnapshotDocsByEmail[0].data();
+            return res.status(409).json({
+                error: true,
+                message: "Email already exists!"
             });
+        }
+
+        const querySnapshotByUsername = await db.collection('users').where('username', '==', user.username).limit(1).get();
+        const querySnapshotDocsByUsername = querySnapshotByUsername.docs;
+        if (querySnapshotDocsByUsername.length > 0) {
+            // const user = querySnapshotDocsByUsername[0].data();
+            return res.status(409).json({
+                error: true,
+                message: "Username already exists!"
+            });
+        }
+
+        const noImage = 'no-image.png';
+        const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${noImage}?alt=media`;
+        const userData = {
+            email: user.email,
+            username: user.username,
+            avatarUrl: avatarUrl,
+            createdAt: new Date().toISOString() // admin.firestore.Timestamp.fromDate(new Date())
+        };
+        await firebase.auth().createUserWithEmailAndPassword(user.email, user.password);
+        await db.collection('users').add(userData);
+
+        return res.status(201).json({
+            error: false,
+            message: "User signed up successfully."
+        });
     },
     login: (req, res) => {
         const validationResult = validate.loginErrors(req.body);
@@ -238,34 +218,38 @@ module.exports = {
     getUserDetails: async (req, res) => {
         // TODO: validate
 
-        const userId = req.params.userId;
+        const username = req.params.username;
 
-        const userDoc = await db.doc(`/users/${userId}`).get();
-
-        if (userDoc.data()) {
-            const userScreamsDocs = await db.collection('screams')
-                .where('userId', '==', userDoc.id)
-                .orderBy('createdAt', 'DESC')
-                .limit(10)
-                .get();
-
-            const userScreams = [];
-            userScreamsDocs.docs.foreach(userScreamDoc => {
-                userScreams.push({
-                    screamId: userScreamDoc.id,
-                    ...userScreamDoc.data(),
-                });
-            });
-
-            return res.status(200).json({
-                user: userDoc.data(),
-                screams: userScreams,
-            });
-        } else {
+        const userDocsSnapshot = (await db.collection('users').where('username', '==', username).limit(1).get()).docs;
+        if (userDocsSnapshot.length === 0) {
             return res.status(404).json({
                 error: true,
                 message: "User not found!",
             });
         }
+        const userDocSnapshot = userDocsSnapshot[0];
+        const userDocId = userDocSnapshot.id;
+
+        const userScreamsSnapshot = await db.collection('screams')
+            .where('userId', '==', userDocId)
+            .orderBy('createdAt', 'DESC')
+            .limit(10)
+            .get();
+
+        const userScreamsDocs = userScreamsSnapshot.docs;
+        const userScreams = [];
+        if (userScreamsDocs.length > 0) {
+            userScreamsDocs.map(async userScreamDoc => {
+                userScreams.push({
+                    screamId: userScreamDoc.id,
+                    ...userScreamDoc.data(),
+                });
+            });
+        }
+
+        return res.status(200).json({
+            user: userDocSnapshot.data(),
+            screams: userScreams,
+        });
     },
 };

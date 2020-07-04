@@ -32,7 +32,7 @@ app.post('/login', userHandler.login);
 app.put('/users/avatar', firebaseAuth, userHandler.uploadAvatar);
 app.post('/users/update-details', firebaseAuth, userHandler.updateDetails);
 app.get('/users/get-auth-user-details', firebaseAuth, userHandler.getAuthUserDetails);
-app.get('/users/get-user-details/:userId', userHandler.getUserDetails);
+app.get('/users/get-user-details/:username', userHandler.getUserDetails);
 
 
 
