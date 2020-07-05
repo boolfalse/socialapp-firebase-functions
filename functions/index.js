@@ -6,33 +6,33 @@ const app = require('express')();
 const firebaseAuth = require('./util/firebaseAuth');
 const notifications = require('./util/notifications');
 
-const screamHandler = require('./handlers/scream');
-const reactionHandler = require('./handlers/reaction');
-const userHandler = require('./handlers/user');
-const notificationHandler = require('./handlers/notification');
+const screamController = require('./controllers/scream');
+const reactionController = require('./controllers/reaction');
+const userController = require('./controllers/user');
+const notificationController = require('./controllers/notification');
 
 
 
 // Scream Routes
-app.post('/screams', firebaseAuth, screamHandler.createScream);
-app.post('/screams/comment', firebaseAuth, screamHandler.commentOnScream);
-app.delete('/screams/:screamId', firebaseAuth, screamHandler.deleteScream);
-app.get('/screams/:screamId', screamHandler.getScreamData);
+app.post('/screams', firebaseAuth, screamController.createScream);
+app.post('/screams/comment', firebaseAuth, screamController.commentOnScream);
+app.delete('/screams/:screamId', firebaseAuth, screamController.deleteScream);
+app.get('/screams/:screamId', screamController.getScreamData);
 
 // Reactions
-app.get('/reactions/:screamId', reactionHandler.getScreamReactions);
-app.post('/reactions', firebaseAuth, reactionHandler.reactionOnScream);
+app.get('/reactions/:screamId', reactionController.getScreamReactions);
+app.post('/reactions', firebaseAuth, reactionController.reactionOnScream);
 
 // Notifications
-app.post('/notifications/read', firebaseAuth, notificationHandler.markAsRead);
+app.post('/notifications/read', firebaseAuth, notificationController.markAsRead);
 
 // User Routes
-app.post('/sign-up', userHandler.signUp);
-app.post('/login', userHandler.login);
-app.put('/users/avatar', firebaseAuth, userHandler.uploadAvatar);
-app.post('/users/update-details', firebaseAuth, userHandler.updateDetails);
-app.get('/users/get-auth-user-details', firebaseAuth, userHandler.getAuthUserDetails);
-app.get('/users/get-user-details/:username', userHandler.getUserDetails);
+app.post('/sign-up', userController.signUp);
+app.post('/login', userController.login);
+app.put('/users/avatar', firebaseAuth, userController.uploadAvatar);
+app.post('/users/update-details', firebaseAuth, userController.updateDetails);
+app.get('/users/get-auth-user-details', firebaseAuth, userController.getAuthUserDetails);
+app.get('/users/get-user-details/:username', userController.getUserDetails);
 
 
 
