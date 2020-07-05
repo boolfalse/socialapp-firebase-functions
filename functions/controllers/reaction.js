@@ -1,6 +1,6 @@
 'use strict';
 
-const { db } = require('./../util/admin');
+const { db } = require('./../utilities/admin');
 const reactionsEnum = [
     1, // like
     2, // dislike

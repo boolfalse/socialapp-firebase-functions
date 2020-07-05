@@ -3,8 +3,8 @@ require('dotenv').config();
 
 const functions = require('firebase-functions');
 const app = require('express')();
-const firebaseAuth = require('./util/firebaseAuth');
-const notifications = require('./util/notifications');
+const firebaseAuth = require('./utilities/firebaseAuth');
+const notifications = require('./utilities/notifications');
 
 const postController = require('./controllers/post');
 const reactionController = require('./controllers/reaction');

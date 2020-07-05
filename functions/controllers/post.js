@@ -1,6 +1,6 @@
 'use strict';
 
-const { db } = require('./../util/admin');
+const { db } = require('./../utilities/admin');
 
 module.exports = {
     createPost: async (req, res) => {

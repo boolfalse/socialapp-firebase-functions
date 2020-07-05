@@ -1,12 +1,12 @@
 'use strict';
 
-const { db, admin } = require('./../util/admin');
+const { db, admin } = require('./../utilities/admin');
 const firebase = require('firebase');
 const firebaseConfig = require('./../config/firebase');
 firebase.initializeApp(firebaseConfig);
 // firebase.analytics();
-const validate = require('./../util/validate');
-const generate = require('./../util/generate');
+const validate = require('./../utilities/validate');
+const generate = require('./../utilities/generate');
 const Busboy = require('busboy');
 const path = require('path');
 const os = require('os');
