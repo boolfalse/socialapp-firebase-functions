@@ -6,22 +6,22 @@ const app = require('express')();
 const firebaseAuth = require('./util/firebaseAuth');
 const notifications = require('./util/notifications');
 
-const screamController = require('./controllers/scream');
+const postController = require('./controllers/post');
 const reactionController = require('./controllers/reaction');
 const userController = require('./controllers/user');
 const notificationController = require('./controllers/notification');
 
 
 
-// Scream Routes
-app.post('/screams', firebaseAuth, screamController.createScream);
-app.post('/screams/comment', firebaseAuth, screamController.commentOnScream);
-app.delete('/screams/:screamId', firebaseAuth, screamController.deleteScream);
-app.get('/screams/:screamId', screamController.getScreamData);
+// Post Routes
+app.post('/posts', firebaseAuth, postController.createPost);
+app.post('/posts/comment', firebaseAuth, postController.commentOnPost);
+app.delete('/posts/:postId', firebaseAuth, postController.deletePost);
+app.get('/posts/:postId', postController.getPostData);
 
 // Reactions
-app.get('/reactions/:screamId', reactionController.getScreamReactions);
-app.post('/reactions', firebaseAuth, reactionController.reactionOnScream);
+app.get('/reactions/:postId', reactionController.getPostReactions);
+app.post('/reactions', firebaseAuth, reactionController.reactionOnPost);
 
 // Notifications
 app.post('/notifications/read', firebaseAuth, notificationController.markAsRead);

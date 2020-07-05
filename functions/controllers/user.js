@@ -204,7 +204,7 @@ module.exports = {
                 recipientId: notificationDoc.data().recipientId,
                 senderId: notificationDoc.data().senderId,
                 createdAt: notificationDoc.data().createdAt,
-                screamId: notificationDoc.data().screamId,
+                postId: notificationDoc.data().postId,
                 type: notificationDoc.data().type,
                 read: notificationDoc.data().read,
                 value: notificationDoc.data().value,
@@ -231,26 +231,26 @@ module.exports = {
         const userDocSnapshot = userDocsSnapshot[0];
         const userDocId = userDocSnapshot.id;
 
-        const userScreamsSnapshot = await db.collection('screams')
+        const userPostsSnapshot = await db.collection('posts')
             .where('userId', '==', userDocId)
             .orderBy('createdAt', 'DESC')
             .limit(10)
             .get();
 
-        const userScreamsDocs = userScreamsSnapshot.docs;
-        const userScreams = [];
-        if (userScreamsDocs.length > 0) {
-            userScreamsDocs.map(async userScreamDoc => {
-                userScreams.push({
-                    screamId: userScreamDoc.id,
-                    ...userScreamDoc.data(),
+        const userPostsDocs = userPostsSnapshot.docs;
+        const userPosts = [];
+        if (userPostsDocs.length > 0) {
+            userPostsDocs.map(async userPostDoc => {
+                userPosts.push({
+                    postId: userPostDoc.id,
+                    ...userPostDoc.data(),
                 });
             });
         }
 
         return res.status(200).json({
             user: userDocSnapshot.data(),
-            screams: userScreams,
+            posts: userPosts,
         });
     },
 };

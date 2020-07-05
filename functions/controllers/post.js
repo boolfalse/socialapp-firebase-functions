@@ -3,7 +3,7 @@
 const { db } = require('./../util/admin');
 
 module.exports = {
-    createScream: async (req, res) => {
+    createPost: async (req, res) => {
         // TODO: validate
 
         const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
@@ -15,7 +15,7 @@ module.exports = {
         }
 
         const userDocId = userDocsSnapshot[0].id;
-        const scream = {
+        const post = {
             userId: userDocId,
             body: req.body.body,
             createdAt: new Date().toISOString(), // admin.firestore.Timestamp.fromDate(new Date())
@@ -25,55 +25,55 @@ module.exports = {
             },
         };
 
-        await db.collection('screams').add(scream);
+        await db.collection('posts').add(post);
         return res.json({
             error: false,
-            message: "Scream created successfully!",
+            message: "Post created successfully!",
         });
     },
-    getScreamData: async (req, res) => {
-        const screamId = req.params.screamId;
-        const scream = await db.doc(`/screams/${screamId}`).get();
-        if (!scream) {
+    getPostData: async (req, res) => {
+        const postId = req.params.postId;
+        const post = await db.doc(`/posts/${postId}`).get();
+        if (!post) {
             return res.status(404).json({
                 error: true,
-                message: "Scream not found",
+                message: "Post not found",
             });
         }
 
-        const screamDocId = scream.id;
+        const postDocId = post.id;
 
         const snapshotData = await db.collection('comments')
             .orderBy('createdAt', 'DESC')
-            .where('screamId', '==', screamId)
+            .where('postId', '==', postId)
             .get();
 
         const comments = [];
         snapshotData.forEach(doc => {
             comments.push({
-                screamId: screamDocId,
+                postId: postDocId,
                 ...doc.data()
             });
         });
 
         return res.json({
-            scream: {
-                screamId: scream.id,
-                ...scream.data()
+            post: {
+                postId: post.id,
+                ...post.data()
             },
             comments: comments,
         });
     },
-    commentOnScream: async (req, res) => {
+    commentOnPost: async (req, res) => {
         // TODO: validate
 
-        const screamId = req.body.screamId;
+        const postId = req.body.postId;
 
-        const screamDoc = await db.doc(`/screams/${screamId}`).get();
-        if (!screamDoc.data()) {
+        const postDoc = await db.doc(`/posts/${postId}`).get();
+        if (!postDoc.data()) {
             return res.status(404).json({
                 error: true,
-                message: "Scream not found!",
+                message: "Post not found!",
             });
         }
 
@@ -89,7 +89,7 @@ module.exports = {
         const comment = {
             body: req.body.body,
             createdAt: new Date(),
-            screamId: screamId,
+            postId: postId,
             userId: userDocId,
         };
         await db.collection('comments').add(comment);
@@ -99,16 +99,16 @@ module.exports = {
             message: "Comment added successfully.",
         });
     },
-    deleteScream: (req, res) => {
-        const screamId = req.params.screamId;
-        const screamDoc = db.doc(`/screams/${screamId}`);
-        screamDoc.get().then(doc => {
+    deletePost: (req, res) => {
+        const postId = req.params.postId;
+        const postDoc = db.doc(`/posts/${postId}`);
+        postDoc.get().then(doc => {
                 if (doc.data()) {
-                    screamDoc.delete()
+                    postDoc.delete()
                         .then(() => {
                             return res.status(200).json({
                                 error: false,
-                                message: "Scream successfully deleted.",
+                                message: "Post successfully deleted.",
                             });
                         })
                         .catch(err => {
@@ -120,7 +120,7 @@ module.exports = {
                 } else {
                     return res.status(404).json({
                         error: true,
-                        message: "Scream not found!",
+                        message: "Post not found!",
                     });
                 }
             })

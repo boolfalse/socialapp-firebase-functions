@@ -7,21 +7,21 @@ const reactionsEnum = [
 ];
 
 module.exports = {
-    getScreamReactions: async (req, res) => {
-        const screamId = req.params.screamId;
-        const scream = await db.doc(`/screams/${screamId}`).get();
-        if (!scream) {
+    getPostReactions: async (req, res) => {
+        const postId = req.params.postId;
+        const post = await db.doc(`/posts/${postId}`).get();
+        if (!post) {
             return res.status(404).json({
                 error: true,
-                message: "Scream not found",
+                message: "Post not found",
             });
         }
 
-        // const screamDocId = scream.id;
+        // const postDocId = post.id;
 
         const snapshotData = await db.collection('reactions')
             .orderBy('createdAt', 'DESC')
-            .where('screamId', '==', screamId)
+            .where('postId', '==', postId)
             .get();
 
         const reactions = [];
@@ -33,7 +33,7 @@ module.exports = {
             reactions: reactions,
         });
     },
-    reactionOnScream: async (req, res) => {
+    reactionOnPost: async (req, res) => {
         // TODO: validate
         const newReaction = req.body.reaction;
         if (!reactionsEnum.includes(newReaction)) {
@@ -43,62 +43,62 @@ module.exports = {
             });
         }
 
-        const screamId = req.body.screamId;
-        const screamDoc = await db.doc(`/screams/${screamId}`).get();
+        const postId = req.body.postId;
+        const postDoc = await db.doc(`/posts/${postId}`).get();
 
-        if (screamDoc.data()) {
+        if (postDoc.data()) {
             let updatedReactions;
-            const screamDocReactions = screamDoc.data().reactions;
+            const postDocReactions = postDoc.data().reactions;
 
-            const screamReactionSnapshot = await db.collection('reactions')
+            const postReactionSnapshot = await db.collection('reactions')
                 .where('userId', '==', req.user.uid)
-                .where('screamId', '==', screamId)
+                .where('postId', '==', postId)
                 .limit(1)
                 .get();
 
-            const screamReactionDocs = screamReactionSnapshot.docs;
+            const postReactionDocs = postReactionSnapshot.docs;
 
-            if (screamReactionDocs.length === 0) {
+            if (postReactionDocs.length === 0) {
                 const reaction = {
                     reaction: newReaction,
-                    screamId: screamId,
+                    postId: postId,
                     createdAt: new Date(),
                     userId: req.user.uid,
                 };
 
                 updatedReactions = {
-                    like: newReaction === 1 ? screamDocReactions.like + 1 : screamDocReactions.like,
-                    dislike: newReaction === 2 ? screamDocReactions.dislike + 1 : screamDocReactions.dislike,
+                    like: newReaction === 1 ? postDocReactions.like + 1 : postDocReactions.like,
+                    dislike: newReaction === 2 ? postDocReactions.dislike + 1 : postDocReactions.dislike,
                 }
 
                 await db.collection('reactions').add(reaction);
             }
             else {
-                const existingReaction = screamReactionDocs[0].data().reaction; // 1 OR 2
+                const existingReaction = postReactionDocs[0].data().reaction; // 1 OR 2
 
                 switch (existingReaction) {
                     case 1:
                         updatedReactions = {
-                            like: newReaction === 1 ? screamDocReactions.like : screamDocReactions.like - 1,
-                            dislike: newReaction === 2 ? screamDocReactions.dislike + 1 : screamDocReactions.dislike,
+                            like: newReaction === 1 ? postDocReactions.like : postDocReactions.like - 1,
+                            dislike: newReaction === 2 ? postDocReactions.dislike + 1 : postDocReactions.dislike,
                         };
                         break;
                     case 2:
                         updatedReactions = {
-                            like: newReaction === 1 ? screamDocReactions.like + 1 : screamDocReactions.like,
-                            dislike: newReaction === 2 ? screamDocReactions.dislike : screamDocReactions.dislike - 1,
+                            like: newReaction === 1 ? postDocReactions.like + 1 : postDocReactions.like,
+                            dislike: newReaction === 2 ? postDocReactions.dislike : postDocReactions.dislike - 1,
                         };
                         break;
                     // default:
                 }
 
-                await db.collection('reactions').doc(screamReactionDocs[0].id).update({
+                await db.collection('reactions').doc(postReactionDocs[0].id).update({
                     reaction: newReaction,
                     createdAt: new Date(),
                 });
             }
 
-            await db.doc(`/screams/${screamId}`).update({
+            await db.doc(`/posts/${postId}`).update({
                 reactions: updatedReactions
             });
 
@@ -110,7 +110,7 @@ module.exports = {
         else {
             return res.status(404).json({
                 error: true,
-                message: "Scream not found!",
+                message: "Post not found!",
             });
         }
     },
