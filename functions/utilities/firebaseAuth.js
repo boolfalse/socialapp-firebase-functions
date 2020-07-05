@@ -22,13 +22,15 @@ module.exports = (req, res, next) => {
             idToken = headerAuth.split('Bearer ')[1];
         } else {
             return res.status(403).json({
-                error: "Unauthorized"
+                error: true,
+                message: "Unauthorized!"
             });
         }
     }
     else {
         return res.status(403).json({
-            error: "Unauthorized"
+            error: true,
+            message: "Unauthorized!"
         });
     }
 
@@ -40,6 +42,16 @@ module.exports = (req, res, next) => {
         })
         .catch(err => {
             // console.error("Error while verifying token: ", err);
-            return res.status(403).json(err);
+            if (err.code === 'auth/id-token-expired') {
+                return res.status(403).json({
+                    error: true,
+                    message: "Unauthorized!"
+                });
+            } else {
+                return res.status(403).json({
+                    error: true,
+                    message: "Something went wrong!"
+                });
+            }
         });
 };
