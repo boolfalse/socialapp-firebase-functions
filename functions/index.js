@@ -11,7 +11,13 @@ const reactionController = require('./controllers/reaction');
 const userController = require('./controllers/user');
 const notificationController = require('./controllers/notification');
 
-
+// Main/Root Route
+app.get('/', (req, res) => {
+    return res.status(200).json({
+        error: false,
+        message: "Root URL",
+    });
+});
 
 // Post Routes
 app.post('/posts', firebaseAuth, postController.createPost);
