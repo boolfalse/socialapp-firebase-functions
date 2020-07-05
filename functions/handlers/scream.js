@@ -17,7 +17,6 @@ module.exports = {
         const userDocId = userDocsSnapshot[0].id;
         const scream = {
             userId: userDocId,
-            userHandle: req.body.userHandle,
             body: req.body.body,
             createdAt: new Date().toISOString(), // admin.firestore.Timestamp.fromDate(new Date())
             reactions: {
