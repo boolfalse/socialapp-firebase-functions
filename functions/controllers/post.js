@@ -81,7 +81,7 @@ module.exports = {
         if (userDocsSnapshot.length === 0) {
             return res.status(403).json({
                 error: true,
-                message: "Something wnt wrong!",
+                message: "Something went wrong!",
             });
         }
         const userDocId = userDocsSnapshot[0].id;

@@ -14,6 +14,7 @@ module.exports = {
 
         notificationIds.forEach(notificationId => {
             notification = db.doc(`/notifications/${notificationId}`);
+            // TODO: check why this works without 'await' operator
             batch.update(notification, { read: true });
         });
         await batch.commit();
