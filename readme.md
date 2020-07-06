@@ -57,9 +57,13 @@
 
 ### TODOs
 
-- Replace "then-catch" to "async-await" in whole app.
+- Create separated Main Controller/Router file and use from there.
+- Rename notifactions names.
+- Check all notifications functionality.
+- Replace error default firebase responses with custom errors.
+- Replace "then-catch" to "async-await".
 - Change Firebase server Node version (now it's 8).
-- Make all responses with defined standard in whole app.
+- Make all responses with defined standard.
 
 ### Author & Contributors
 

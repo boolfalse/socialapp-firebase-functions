@@ -48,3 +48,5 @@ module.exports.createNotificationForReaction = notifications.createNotificationF
 module.exports.deleteNotificationForReaction = notifications.deleteNotificationForReaction;
 module.exports.createNotificationForComment = notifications.createNotificationForComment;
 module.exports.deleteNotificationForComment = notifications.deleteNotificationForComment;
+// module.exports.updateNotificationForUserChangesProfileImage = notifications.updateNotificationForUserChangesProfileImage;
+module.exports.deleteNotificationForDeletePost = notifications.deleteNotificationForDeletePost;
