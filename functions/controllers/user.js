@@ -126,6 +126,7 @@ module.exports = {
                 },
             }).then(async (data) => {
                 const avatarUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${uploadedFilename}?alt=media`;
+
                 const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
                 if (userDocsSnapshot.length === 0) {
                     return res.status(500).json({
@@ -133,8 +134,8 @@ module.exports = {
                         message: "Something went wrong!"
                     });
                 }
-
                 const userDocId = userDocsSnapshot[0].id;
+
                 await db.doc(`/users/${userDocId}`).update({ avatarUrl: avatarUrl });
 
                 return res.json({
@@ -164,8 +165,8 @@ module.exports = {
                 message: "Something went wrong!"
             });
         }
-
         const userDocId = userDocsSnapshot[0].id;
+
         await db.doc(`/users/${userDocId}`).update(userDetails);
 
         return res.json({
@@ -187,6 +188,7 @@ module.exports = {
             });
         }
         const userDocId = userDocsSnapshot[0].id;
+
         userData.credentials = {
             userId: userDocId,
             ...userDocsSnapshot[0].data()

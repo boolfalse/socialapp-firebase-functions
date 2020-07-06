@@ -13,8 +13,8 @@ module.exports = {
                 message: "Something went wrong!"
             });
         }
-
         const userDocId = userDocsSnapshot[0].id;
+
         const post = {
             userId: userDocId,
             body: req.body.body,
@@ -79,13 +79,13 @@ module.exports = {
 
         const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
         if (userDocsSnapshot.length === 0) {
-            return res.status(404).json({
+            return res.status(403).json({
                 error: true,
                 message: "Something wnt wrong!",
             });
         }
-
         const userDocId = userDocsSnapshot[0].id;
+
         const comment = {
             body: req.body.body,
             createdAt: new Date(),
