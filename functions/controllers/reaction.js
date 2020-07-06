@@ -47,11 +47,20 @@ module.exports = {
         const postDoc = await db.doc(`/posts/${postId}`).get();
 
         if (postDoc.data()) {
+            const userDocsSnapshot = (await db.collection('users').where('email', '==', req.user.email).get()).docs;
+            if (userDocsSnapshot.length === 0) {
+                return res.status(403).json({
+                    error: true,
+                    message: "Something wnt wrong!",
+                });
+            }
+            const userDocId = userDocsSnapshot[0].id;
+
             let updatedReactions;
             const postDocReactions = postDoc.data().reactions;
 
             const postReactionSnapshot = await db.collection('reactions')
-                .where('userId', '==', req.user.uid)
+                .where('userId', '==', userDocId)
                 .where('postId', '==', postId)
                 .limit(1)
                 .get();
@@ -63,7 +72,7 @@ module.exports = {
                     reaction: newReaction,
                     postId: postId,
                     createdAt: new Date(),
-                    userId: req.user.uid,
+                    userId: userDocId,
                 };
 
                 updatedReactions = {

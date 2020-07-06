@@ -10,7 +10,7 @@ module.exports = {
         .onCreate(async eventSnapshot => {
             const postDoc = await db.doc(`/posts/${eventSnapshot.data().postId}`).get();
 
-            // TODO: check if doc exists (cause the post can be removed after notification)
+            // TODO: check if post doc exists (cause the post can be removed after notification)
 
             const notificationData = {
                 type: 'reaction',
@@ -40,7 +40,7 @@ module.exports = {
         .onCreate(async eventSnapshot => {
             const postDoc = await db.doc(`/posts/${eventSnapshot.data().postId}`).get();
 
-            // TODO: check if doc exists (cause the post can be removed after notification)
+            // TODO: check if post doc exists (cause the post can be removed after notification)
 
             const notificationData = {
                 type: 'comment',

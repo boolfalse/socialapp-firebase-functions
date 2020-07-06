@@ -57,10 +57,9 @@
 
 ### TODOs
 
-- Fix 'userId' in 'notifications' and 'reactions' collections issue.
-- Replace "then-catch" to "async-await".
+- Replace "then-catch" to "async-await" in whole app.
 - Change Firebase server Node version (now it's 8).
-- Make all responses with defined standard.
+- Make all responses with defined standard in whole app.
 
 ### Author & Contributors
 
